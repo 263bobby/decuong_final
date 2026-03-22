@@ -9,5 +9,11 @@ class Config:
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'fast_executemany': False,
+        'use_setinputsizes': False,
+    }
+
     EXTERNAL_API_URL = os.environ.get('EXTERNAL_API_URL') or 'http://localhost:5001'
     EXTERNAL_API_KEY = os.environ.get('EXTERNAL_API_KEY') or 'ext-api-key-123'

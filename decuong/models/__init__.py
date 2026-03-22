@@ -2,7 +2,6 @@ from extensions import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
-from sqlalchemy import SmallInteger
 
 
 class DonVi(db.Model):
@@ -12,7 +11,7 @@ class DonVi(db.Model):
     maDonVi   = db.Column(db.String(20),  nullable=False, unique=True)
     loaiDonVi = db.Column(db.String(20),  nullable=False, default='khoa')
     moTa      = db.Column(db.Text, nullable=True)
-    ngayTao   = db.Column(db.DateTime, server_default=db.func.now())
+    # ngayTao: SQL Server tự quản lý, không map vào Python
 
     can_bo   = db.relationship('CanBo',   foreign_keys='CanBo.idDonVi', backref='don_vi', lazy='dynamic')
     hoc_phan = db.relationship('HocPhan', backref='don_vi', lazy='dynamic')
@@ -36,8 +35,7 @@ class CanBo(UserMixin, db.Model):
     matKhau     = db.Column(db.String(256), nullable=False)
     vaiTro      = db.Column(db.String(20),  nullable=False, default='can_bo')
     trangThai   = db.Column(db.Boolean, nullable=False, default=True)
-    ngayTao     = db.Column(db.DateTime, server_default=db.func.now())
-    ngayCapNhat = db.Column(db.DateTime, server_default=db.func.now())
+    # ngayTao, ngayCapNhat: SQL Server tự quản lý
 
     def get_id(self):
         return str(self.idCanBo)
@@ -74,7 +72,7 @@ class HocPhan(db.Model):
     idDonVi    = db.Column(db.Integer, db.ForeignKey('DonVi.idDonVi'), nullable=False)
     moTa       = db.Column(db.Text, nullable=True)
     trangThai  = db.Column(db.String(20),  nullable=False, default='dang_su_dung')
-    ngayTao    = db.Column(db.DateTime, server_default=db.func.now())
+    # ngayTao: SQL Server tự quản lý
 
     de_cuong   = db.relationship('DeCuong', backref='hoc_phan', uselist=False, cascade='all, delete-orphan')
     phan_quyen = db.relationship('CanBoHocPhan', backref='hoc_phan', cascade='all, delete-orphan')
@@ -90,7 +88,7 @@ class CanBoHocPhan(db.Model):
     idHocPhan      = db.Column(db.Integer, db.ForeignKey('HocPhan.idHocPhan'), nullable=False)
     quyenHieuChinh = db.Column(db.Boolean, nullable=False, default=True)
     quyenDuyetDC   = db.Column(db.Boolean, nullable=False, default=False)
-    ngayPhanQuyen  = db.Column(db.DateTime, server_default=db.func.now())
+    # ngayPhanQuyen: SQL Server tự quản lý
     ngayBatDau     = db.Column(db.Date, nullable=True)
     ngayKetThuc    = db.Column(db.Date, nullable=True)
     nguoiPhanQuyen = db.Column(db.Integer, db.ForeignKey('CanBo.idCanBo'), nullable=False)
@@ -121,8 +119,6 @@ class CanBoHocPhan(db.Model):
 
 class DeCuong(db.Model):
     __tablename__ = 'DeCuong'
-
-    # Dùng __mapper_args__ để báo SQLAlchemy KHÔNG tự include ngayCapNhat khi UPDATE
     idDeCuong   = db.Column(db.Integer, primary_key=True)
     idHocPhan   = db.Column(db.Integer, db.ForeignKey('HocPhan.idHocPhan'), nullable=False, unique=True)
     phienBan    = db.Column(db.String(10), nullable=False, default='1.0')
@@ -132,9 +128,7 @@ class DeCuong(db.Model):
     ppGiangDay  = db.Column(db.Text, nullable=True)
     ppDanhGia   = db.Column(db.Text, nullable=True)
     trangThai   = db.Column(db.String(30), nullable=False, default='nhap')
-    ngayTao     = db.Column(db.DateTime, server_default=db.func.now())
-    # ngayCapNhat: để SQL Server tự quản lý, KHÔNG map vào model
-    # để tránh lỗi pyodbc precision khi truyền datetime Python xuống
+    # ngayTao, ngayCapNhat: SQL Server tự quản lý
 
     lich_su = db.relationship('LichSuHieuChinh', backref='de_cuong', lazy='dynamic', cascade='all, delete-orphan')
 
@@ -151,7 +145,7 @@ class LichSuHieuChinh(db.Model):
     noiDungMoi    = db.Column(db.Text, nullable=True)
     truongThayDoi = db.Column(db.String(100), nullable=True)
     ghiChu        = db.Column(db.String(500), nullable=True)
-    thoiGian      = db.Column(db.DateTime, server_default=db.func.now())
+    # thoiGian: SQL Server tự quản lý
 
     can_bo = db.relationship('CanBo', backref='lich_su_hieu_chinh')
 
