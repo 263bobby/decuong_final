@@ -40,8 +40,9 @@ def xem_de_cuong(hp_id):
     if not dc:
         flash('Đề cương chưa được tạo. Liên hệ Admin Đơn vị.', 'warning')
         return redirect(url_for('giaovien.dashboard'))
+    # Dùng idLichSu thay thoiGian vì thoiGian đã xóa khỏi model
     lich_su = LichSuHieuChinh.query.filter_by(idDeCuong=dc.idDeCuong)\
-        .order_by(LichSuHieuChinh.thoiGian.desc()).limit(10).all()
+        .order_by(LichSuHieuChinh.idLichSu.desc()).limit(10).all()
     return render_template('giaovien/de_cuong.html', hp=hp, dc=dc, pq=pq, lich_su=lich_su)
 
 @giaovien_bp.route('/de-cuong/<int:dc_id>/luu', methods=['POST'])
@@ -54,7 +55,6 @@ def luu_de_cuong(dc_id):
         flash('Bạn không có quyền hiệu chỉnh.', 'danger')
         return redirect(url_for('giaovien.dashboard'))
 
-    # Dùng db.func.now() thay datetime.utcnow() để tránh lỗi pyodbc precision
     ls = LichSuHieuChinh(
         idDeCuong=dc.idDeCuong,
         idCanBo=current_user.idCanBo,
@@ -71,7 +71,6 @@ def luu_de_cuong(dc_id):
     dc.ppGiangDay = request.form.get('ppGiangDay', dc.ppGiangDay)
     dc.ppDanhGia  = request.form.get('ppDanhGia',  dc.ppDanhGia)
     dc.trangThai  = 'dang_hieu_chinh'
-    # Không set ngayCapNhat thủ công — để SQL Server tự cập nhật qua DEFAULT/trigger
 
     db.session.commit()
     flash('Đã lưu hiệu chỉnh thành công!', 'success')

@@ -4,7 +4,6 @@
 {% block content %}
 <div class="row g-4">
 
-    <!-- Cột trái: Phân công cán bộ -->
     <div class="col-md-5">
         <div class="card h-100">
             <div class="card-header bg-primary text-white fw-bold">
@@ -52,7 +51,6 @@
         </div>
     </div>
 
-    <!-- Cột phải: Đề cương -->
     <div class="col-md-7">
         <div class="card">
             <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
@@ -110,18 +108,19 @@
             </div>
         </div>
 
-        <!-- Lịch sử hiệu chỉnh -->
         {% if hp.de_cuong and hp.de_cuong.lich_su.count() > 0 %}
         <div class="card mt-3">
             <div class="card-header bg-white fw-bold">
                 <i class="bi bi-clock-history me-1"></i> Lịch sử hiệu chỉnh gần đây
             </div>
             <div class="card-body p-0" style="max-height:200px;overflow-y:auto;">
-                {% for ls in hp.de_cuong.lich_su.order_by('thoiGian desc').limit(5) %}
+                {% for ls in hp.de_cuong.lich_su.limit(5) %}
                 <div class="p-3 border-bottom">
                     <div class="d-flex justify-content-between">
                         <span class="fw-semibold small">{{ ls.can_bo.hoTen }}</span>
-                        <span class="text-muted" style="font-size:.75rem;">{{ ls.thoiGian.strftime('%d/%m %H:%M') }}</span>
+                        <span class="text-muted" style="font-size:.75rem;">
+                            {{ ls.thoiGian.strftime('%d/%m %H:%M') if ls.thoiGian else 'Chưa rõ' }}
+                        </span>
                     </div>
                     {% if ls.ghiChu %}<div class="text-muted small mt-1">{{ ls.ghiChu }}</div>{% endif %}
                 </div>

@@ -51,7 +51,6 @@
                     <tr><td class="text-muted">Mã HP</td><td class="fw-semibold">{{ hp.maHP }}</td></tr>
                     <tr><td class="text-muted">Tín chỉ</td><td>{{ hp.soTinChi }}</td></tr>
                     <tr><td class="text-muted">Đơn vị</td><td>{{ hp.don_vi.tenDonVi if hp.don_vi else '—' }}</td></tr>
-                    <tr><td class="text-muted">Cập nhật</td><td>{{ dc.ngayCapNhat.strftime('%d/%m/%Y') if dc.ngayCapNhat else '—' }}</td></tr>
                 </table>
                 {% if pq.quyenDuyetDC %}<div class="mt-2"><span class="badge bg-success-subtle text-success border w-100 text-center">Có quyền duyệt</span></div>{% endif %}
                 {% if pq.ngayKetThuc %}<div class="mt-2 text-muted small"><i class="bi bi-calendar-x me-1"></i>Hết hạn: {{ pq.ngayKetThuc.strftime('%d/%m/%Y') }}</div>{% endif %}
@@ -65,7 +64,7 @@
                     <div class="p-3 border-bottom">
                         <div class="d-flex justify-content-between">
                             <span class="fw-semibold small">{{ ls.can_bo.hoTen }}</span>
-                            <span class="text-muted" style="font-size:.75rem;">{{ ls.thoiGian.strftime('%d/%m %H:%M') }}</span>
+                            <span class="text-muted" style="font-size:.75rem;">#{{ ls.idLichSu }}</span>
                         </div>
                         {% if ls.ghiChu %}<div class="text-muted small mt-1"><i class="bi bi-chat-left-text me-1"></i>{{ ls.ghiChu }}</div>{% endif %}
                     </div>
