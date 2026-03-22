@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Admin Đơn vị{% endblock %}
+{% block page_title %}Quản lý Học phần của Đơn vị{% endblock %}
+{% block content %}
+<div class="alert alert-info d-flex align-items-center gap-2">
+    <i class="bi bi-building fs-5"></i>
+    <span>Đơn vị: <strong>{{ current_user.don_vi.tenDonVi }}</strong>
+        <span class="badge bg-secondary ms-2">{{ current_user.don_vi.maDonVi }}</span>
+    </span>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white fw-bold">
+        <i class="bi bi-book me-1"></i> Danh sách học phần thuộc đơn vị
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th><th>Mã HP</th><th>Tên học phần</th><th>Tín chỉ</th>
+                    <th>CB hiệu chỉnh</th><th>Trạng thái ĐC</th><th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for hp in hoc_phans %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td><code>{{ hp.maHP }}</code></td>
+                <td class="fw-semibold">{{ hp.tenHP }}</td>
+                <td>{{ hp.soTinChi }}</td>
+                <td>
+                    {% for pq in hp.phan_quyen %}
+                        <span class="badge bg-light text-dark border">{{ pq.can_bo.hoTen }}</span>
+                    {% else %}
+                        <span class="text-muted small">Chưa phân công</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% if hp.de_cuong %}
+                        {% if hp.de_cuong.trangThai == 'hoan_thanh' %}
+                            <span class="badge bg-success">Hoàn thành</span>
+                        {% elif hp.de_cuong.trangThai == 'dang_hieu_chinh' %}
+                            <span class="badge bg-primary">Đang hiệu chỉnh</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Nháp</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="badge bg-light text-muted border">Chưa có ĐC</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('donvi.chi_tiet_hoc_phan', hp_id=hp.idHocPhan) }}"
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-gear"></i> Quản lý
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center text-muted py-4">Đơn vị chưa có học phần nào</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

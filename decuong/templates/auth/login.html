@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block auth_content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #0f2447 0%, #1a3c6e 100%);">
+    <div class="card p-4" style="width: 400px; border-radius: 16px;">
+        <div class="text-center mb-4">
+            <div class="mb-2" style="font-size: 2.5rem; color: #1a3c6e;">
+                <i class="bi bi-journal-bookmark-fill"></i>
+            </div>
+            <h4 class="fw-bold text-dark">Quản lý Đề cương</h4>
+            <p class="text-muted small">Hệ thống phân quyền hiệu chỉnh đề cương môn học</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for cat, msg in messages %}
+                    <div class="alert alert-{{ cat }}">{{ msg }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Email</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                    <input type="email" name="email" class="form-control" placeholder="email@edu.vn" required>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Mật khẩu</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                </div>
+            </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                <label class="form-check-label text-muted" for="remember">Ghi nhớ đăng nhập</label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 fw-bold py-2" style="background:#1a3c6e; border:none;">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
+            </button>
+        </form>
+
+        <hr class="my-3">
+        <div class="text-center text-muted small">
+            <strong>Tài khoản demo:</strong><br>
+            Admin: admin@edu.vn / admin123<br>
+            Trưởng Khoa: truongkhoa@edu.vn / khoa123<br>
+            Giảng viên: nguyenvana@edu.vn / gv123
+        </div>
+    </div>
+</div>
+{% endblock %}

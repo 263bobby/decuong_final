@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Hiệu chỉnh - {{ hp.tenHP }}{% endblock %}
+{% block page_title %}Hiệu chỉnh: {{ hp.tenHP }}{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-bold"><i class="bi bi-pencil-square me-1"></i> Nội dung đề cương</span>
+                <div>
+                    <span class="badge bg-secondary me-1">v{{ dc.phienBan }}</span>
+                    {% if dc.trangThai == 'hoan_thanh' %}<span class="badge bg-success">Hoàn thành</span>
+                    {% elif dc.trangThai == 'dang_hieu_chinh' %}<span class="badge bg-primary">Đang hiệu chỉnh</span>
+                    {% else %}<span class="badge bg-warning text-dark">Nháp</span>{% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('giaovien.luu_de_cuong', dc_id=dc.idDeCuong) }}" id="formHC">
+                    <div class="mb-3"><label class="form-label fw-semibold">1. Mục tiêu môn học</label>
+                        <textarea name="mucTieu" class="form-control" rows="3" placeholder="Mô tả mục tiêu học tập, chuẩn đầu ra...">{{ dc.mucTieu or '' }}</textarea></div>
+                    <div class="mb-3"><label class="form-label fw-semibold">2. Nội dung giảng dạy</label>
+                        <textarea name="noiDung" class="form-control" rows="6" placeholder="Liệt kê các chương, tuần học...">{{ dc.noiDung or '' }}</textarea></div>
+                    <div class="mb-3"><label class="form-label fw-semibold">3. Tài liệu học tập</label>
+                        <textarea name="taiLieu" class="form-control" rows="3" placeholder="Giáo trình, sách tham khảo...">{{ dc.taiLieu or '' }}</textarea></div>
+                    <div class="mb-3"><label class="form-label fw-semibold">4. Phương pháp giảng dạy</label>
+                        <textarea name="ppGiangDay" class="form-control" rows="2" placeholder="Thuyết trình, thảo luận, thực hành...">{{ dc.ppGiangDay or '' }}</textarea></div>
+                    <div class="mb-3"><label class="form-label fw-semibold">5. Phương pháp đánh giá</label>
+                        <textarea name="ppDanhGia" class="form-control" rows="2" placeholder="Kiểm tra giữa kỳ 30%, cuối kỳ 70%...">{{ dc.ppDanhGia or '' }}</textarea></div>
+                    <div class="mb-4"><label class="form-label fw-semibold">Ghi chú thay đổi</label>
+                        <input type="text" name="ghiChu" class="form-control" placeholder="Mô tả ngắn nội dung đã thay đổi..."></div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Lưu hiệu chỉnh</button>
+                        {% if dc.trangThai != 'hoan_thanh' and pq.quyenDuyetDC %}
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalHT">
+                            <i class="bi bi-check-circle me-1"></i> Đánh dấu hoàn thành
+                        </button>
+                        {% endif %}
+                        <a href="{{ url_for('giaovien.dashboard') }}" class="btn btn-outline-secondary ms-auto">
+                            <i class="bi bi-arrow-left me-1"></i> Quay lại
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header bg-white fw-bold"><i class="bi bi-info-circle me-1"></i> Thông tin học phần</div>
+            <div class="card-body">
+                <table class="table table-sm mb-0">
+                    <tr><td class="text-muted">Mã HP</td><td class="fw-semibold">{{ hp.maHP }}</td></tr>
+                    <tr><td class="text-muted">Tín chỉ</td><td>{{ hp.soTinChi }}</td></tr>
+                    <tr><td class="text-muted">Đơn vị</td><td>{{ hp.don_vi.tenDonVi if hp.don_vi else '—' }}</td></tr>
+                    <tr><td class="text-muted">Cập nhật</td><td>{{ dc.ngayCapNhat.strftime('%d/%m/%Y') if dc.ngayCapNhat else '—' }}</td></tr>
+                </table>
+                {% if pq.quyenDuyetDC %}<div class="mt-2"><span class="badge bg-success-subtle text-success border w-100 text-center">Có quyền duyệt</span></div>{% endif %}
+                {% if pq.ngayKetThuc %}<div class="mt-2 text-muted small"><i class="bi bi-calendar-x me-1"></i>Hết hạn: {{ pq.ngayKetThuc.strftime('%d/%m/%Y') }}</div>{% endif %}
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header bg-white fw-bold"><i class="bi bi-clock-history me-1"></i> Lịch sử hiệu chỉnh</div>
+            <div class="card-body p-0" style="max-height:360px;overflow-y:auto;">
+                {% if lich_su %}
+                    {% for ls in lich_su %}
+                    <div class="p-3 border-bottom">
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-semibold small">{{ ls.can_bo.hoTen }}</span>
+                            <span class="text-muted" style="font-size:.75rem;">{{ ls.thoiGian.strftime('%d/%m %H:%M') }}</span>
+                        </div>
+                        {% if ls.ghiChu %}<div class="text-muted small mt-1"><i class="bi bi-chat-left-text me-1"></i>{{ ls.ghiChu }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="text-center text-muted py-4 small"><i class="bi bi-clock-history d-block mb-1 fs-4"></i>Chưa có lịch sử</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalHT" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Xác nhận hoàn thành</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><p>Đánh dấu đề cương <strong>{{ hp.tenHP }}</strong> là hoàn thành?</p></div>
+            <div class="modal-footer">
+                <form method="POST" action="{{ url_for('giaovien.hoan_thanh', dc_id=dc.idDeCuong) }}">
+                    <button class="btn btn-success"><i class="bi bi-check-circle me-1"></i>Xác nhận</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('#formHC textarea').forEach(el => {
+    el.addEventListener('input', () => { clearTimeout(el._t); el._t = setTimeout(() => localStorage.setItem('dc_'+el.name+'_{{ dc.idDeCuong }}', el.value), 1500); });
+    const s = localStorage.getItem('dc_'+el.name+'_{{ dc.idDeCuong }}');
+    if (s && !el.value) el.value = s;
+});
+</script>
+{% endblock %}

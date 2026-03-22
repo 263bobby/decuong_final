@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Admin{% endblock %}
+{% block page_title %}Dashboard Quản trị{% endblock %}
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:50px;height:50px;background:#e8f0fe;">
+                    <i class="bi bi-people-fill fs-4" style="color:#1a3c6e;"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Tổng cán bộ</div>
+                    <div class="fw-bold fs-3">{{ tong_cb }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:50px;height:50px;background:#fff3cd;">
+                    <i class="bi bi-building fs-4" style="color:#e8a020;"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Tổng đơn vị</div>
+                    <div class="fw-bold fs-3">{{ tong_dv }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:50px;height:50px;background:#d1ecf1;">
+                    <i class="bi bi-book fs-4" style="color:#0c7cb8;"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Tổng học phần</div>
+                    <div class="fw-bold fs-3">{{ tong_hp }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-lightning-fill text-warning me-1"></i> Thao tác nhanh
+            </div>
+            <div class="card-body d-grid gap-2">
+                <a href="{{ url_for('admin.can_bo') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-person-plus me-1"></i> Quản lý Cán bộ & Phân quyền
+                </a>
+                <a href="{{ url_for('admin.don_vi') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-building me-1"></i> Quản lý Đơn vị
+                </a>
+                <a href="{{ url_for('admin.hoc_phan') }}" class="btn btn-outline-success">
+                    <i class="bi bi-book-half me-1"></i> Quản lý Học phần
+                </a>
+                <a href="{{ url_for('admin.dong_bo_api') }}" class="btn btn-outline-info">
+                    <i class="bi bi-cloud-arrow-down me-1"></i> Đồng bộ từ API ngoài
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-info-circle me-1"></i> Luồng hoạt động
+            </div>
+            <div class="card-body">
+                <ol class="mb-0 text-muted small">
+                    <li class="mb-1">Tạo <strong>Đơn vị</strong> (Khoa/Bộ môn)</li>
+                    <li class="mb-1">Thêm <strong>Cán bộ</strong> → gán Đơn vị + Vai trò</li>
+                    <li class="mb-1">Thêm <strong>Học phần</strong> → gán vào Đơn vị</li>
+                    <li class="mb-1">Admin Đơn vị phân quyền <strong>Cán bộ</strong> hiệu chỉnh từng học phần</li>
+                    <li class="mb-0">Cán bộ đăng nhập → Hiệu chỉnh <strong>Đề cương</strong></li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Cán bộ{% endblock %}
+{% block page_title %}Quản lý Cán bộ{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span class="fw-bold"><i class="bi bi-people me-1"></i> Danh sách Cán bộ</span>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalThem">
+            <i class="bi bi-plus-lg me-1"></i> Thêm cán bộ
+        </button>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>#</th><th>Mã CB</th><th>Họ tên</th><th>Email</th><th>Học vị</th><th>Đơn vị</th><th>Vai trò</th><th>T.Thái</th><th></th></tr>
+            </thead>
+            <tbody>
+            {% for cb in ds_cb %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td><code>{{ cb.maCB }}</code></td>
+                <td class="fw-semibold">{{ cb.hoTen }}</td>
+                <td>{{ cb.email }}</td>
+                <td>{{ cb.hocVi or '—' }}</td>
+                <td>{{ cb.don_vi.tenDonVi if cb.don_vi else '—' }}</td>
+                <td>
+                    {% if cb.vaiTro == 'admin' %}<span class="badge bg-danger">Admin</span>
+                    {% elif cb.vaiTro == 'admin_donvi' %}<span class="badge bg-primary">Admin ĐV</span>
+                    {% else %}<span class="badge bg-success">Cán bộ</span>{% endif %}
+                </td>
+                <td>{% if cb.trangThai %}<span class="badge bg-success">ON</span>{% else %}<span class="badge bg-secondary">OFF</span>{% endif %}</td>
+                <td>
+                    <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#edit{{ cb.idCanBo }}"><i class="bi bi-pencil"></i></button>
+                    <form method="POST" action="{{ url_for('admin.xoa_can_bo', cb_id=cb.idCanBo) }}" class="d-inline" onsubmit="return confirm('Xóa {{ cb.hoTen }}?')">
+                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            <div class="modal fade" id="edit{{ cb.idCanBo }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <form method="POST" action="{{ url_for('admin.cap_nhat_can_bo', cb_id=cb.idCanBo) }}">
+                    <div class="modal-content">
+                        <div class="modal-header"><h5 class="modal-title">Cập nhật: {{ cb.hoTen }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                        <div class="modal-body">
+                            <div class="mb-2"><label class="form-label">Họ tên</label><input type="text" name="hoTen" class="form-control" value="{{ cb.hoTen }}" required></div>
+                            <div class="mb-2"><label class="form-label">Vai trò</label>
+                                <select name="vaiTro" class="form-select">
+                                    <option value="can_bo" {% if cb.vaiTro=='can_bo' %}selected{% endif %}>Cán bộ</option>
+                                    <option value="admin_donvi" {% if cb.vaiTro=='admin_donvi' %}selected{% endif %}>Admin Đơn vị</option>
+                                    <option value="admin" {% if cb.vaiTro=='admin' %}selected{% endif %}>Admin</option>
+                                </select>
+                            </div>
+                            <div class="mb-2"><label class="form-label">Đơn vị</label>
+                                <select name="idDonVi" class="form-select">
+                                    {% for dv in ds_dv %}<option value="{{ dv.idDonVi }}" {% if cb.idDonVi==dv.idDonVi %}selected{% endif %}>{{ dv.tenDonVi }}</option>{% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-2"><label class="form-label">Học vị</label>
+                                <select name="hocVi" class="form-select">
+                                    <option value="">—</option>
+                                    {% for hv in ['Cu_nhan','Thac_si','Tien_si','PGS','GS'] %}
+                                    <option value="{{ hv }}" {% if cb.hocVi==hv %}selected{% endif %}>{{ hv }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-2"><label class="form-label">Chức vụ</label><input type="text" name="chucVu" class="form-control" value="{{ cb.chucVu or '' }}"></div>
+                            <div class="mb-2"><label class="form-label">Mật khẩu mới (để trống = giữ cũ)</label><input type="password" name="matKhauMoi" class="form-control"></div>
+                            <div class="form-check"><input class="form-check-input" type="checkbox" name="trangThai" {% if cb.trangThai %}checked{% endif %}><label class="form-check-label">Tài khoản hoạt động</label></div>
+                        </div>
+                        <div class="modal-footer"><button class="btn btn-primary">Lưu</button></div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalThem" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ url_for('admin.them_can_bo') }}">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Thêm Cán bộ mới</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-2"><label class="form-label">Mã cán bộ</label><input type="text" name="maCB" class="form-control" placeholder="CB004" required></div>
+                <div class="mb-2"><label class="form-label">Họ tên</label><input type="text" name="hoTen" class="form-control" required></div>
+                <div class="mb-2"><label class="form-label">Email</label><input type="email" name="email" class="form-control" required></div>
+                <div class="mb-2"><label class="form-label">Mật khẩu</label><input type="password" name="matKhau" class="form-control" required></div>
+                <div class="mb-2"><label class="form-label">Vai trò</label>
+                    <select name="vaiTro" class="form-select">
+                        <option value="can_bo">Cán bộ</option>
+                        <option value="admin_donvi">Admin Đơn vị</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="mb-2"><label class="form-label">Đơn vị</label>
+                    <select name="idDonVi" class="form-select" required>
+                        {% for dv in ds_dv %}<option value="{{ dv.idDonVi }}">{{ dv.tenDonVi }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2"><label class="form-label">Học vị</label>
+                    <select name="hocVi" class="form-select">
+                        <option value="">—</option>
+                        {% for hv in ['Cu_nhan','Thac_si','Tien_si','PGS','GS'] %}<option value="{{ hv }}">{{ hv }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary">Thêm</button></div>
+        </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

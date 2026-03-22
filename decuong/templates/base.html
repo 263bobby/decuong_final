@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Quản lý Đề cương{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root{--primary:#1a3c6e;--accent:#e8a020;--sidebar-bg:#0f2447;--sidebar-w:250px}
+        body{background:#f0f4f8;font-family:'Segoe UI',sans-serif}
+        .sidebar{width:var(--sidebar-w);background:var(--sidebar-bg);min-height:100vh;position:fixed;top:0;left:0;z-index:100}
+        .sidebar-brand{background:var(--primary);padding:20px 16px;color:#fff;font-weight:700;font-size:1rem;border-bottom:3px solid var(--accent)}
+        .sidebar .nav-link{color:rgba(255,255,255,.75);padding:10px 20px;transition:all .2s}
+        .sidebar .nav-link:hover,.sidebar .nav-link.active{color:#fff;background:rgba(255,255,255,.1);border-left:3px solid var(--accent)}
+        .sidebar .nav-link i{margin-right:8px}
+        .main-content{margin-left:var(--sidebar-w);padding:24px;min-height:100vh}
+        .topbar{background:#fff;border-bottom:1px solid #dee2e6;padding:12px 24px;margin:-24px -24px 24px -24px;display:flex;align-items:center;justify-content:space-between}
+        .card{border:none;box-shadow:0 2px 8px rgba(0,0,0,.08);border-radius:12px}
+        .stat-card{border-left:4px solid var(--accent)}
+    </style>
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<div class="sidebar">
+    <div class="sidebar-brand"><i class="bi bi-journal-bookmark-fill me-2"></i>Quản lý Đề cương</div>
+    <nav class="nav flex-column mt-2">
+        {% if current_user.vaiTro == 'admin' %}
+            <a class="nav-link" href="{{ url_for('admin.dashboard') }}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <a class="nav-link" href="{{ url_for('admin.can_bo') }}"><i class="bi bi-people-fill"></i>Cán bộ</a>
+            <a class="nav-link" href="{{ url_for('admin.don_vi') }}"><i class="bi bi-building"></i>Đơn vị</a>
+            <a class="nav-link" href="{{ url_for('admin.hoc_phan') }}"><i class="bi bi-book"></i>Học phần</a>
+            <a class="nav-link" href="{{ url_for('admin.dong_bo_api') }}"><i class="bi bi-cloud-download"></i>Đồng bộ API</a>
+        {% elif current_user.vaiTro == 'admin_donvi' %}
+            <a class="nav-link" href="{{ url_for('donvi.dashboard') }}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+        {% else %}
+            <a class="nav-link" href="{{ url_for('giaovien.dashboard') }}"><i class="bi bi-file-earmark-text"></i>Đề cương của tôi</a>
+        {% endif %}
+    </nav>
+    <div class="position-absolute bottom-0 w-100 p-3" style="background:rgba(0,0,0,.2)">
+        <div class="text-white-50 small mb-1">{{ current_user.hoTen }}</div>
+        <div class="text-white-50" style="font-size:.7rem">
+            {% if current_user.vaiTro=='admin' %}Super Admin
+            {% elif current_user.vaiTro=='admin_donvi' %}Admin Đơn vị
+            {% else %}Cán bộ{% endif %}
+            {% if current_user.don_vi %} · {{ current_user.don_vi.maDonVi }}{% endif %}
+        </div>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-light w-100 mt-2">
+            <i class="bi bi-box-arrow-right"></i> Đăng xuất
+        </a>
+    </div>
+</div>
+<div class="main-content">
+    <div class="topbar">
+        <h5 class="mb-0 fw-bold text-dark">{% block page_title %}{% endblock %}</h5>
+        <div class="d-flex align-items-center gap-2">
+            {% if current_user.vaiTro=='admin' %}<span class="badge bg-danger">Admin</span>
+            {% elif current_user.vaiTro=='admin_donvi' %}<span class="badge bg-primary">Admin Đơn vị</span>
+            {% else %}<span class="badge bg-success">Cán bộ</span>{% endif %}
+        </div>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show">
+            {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</div>
+{% else %}
+{% block auth_content %}{% endblock %}
+{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

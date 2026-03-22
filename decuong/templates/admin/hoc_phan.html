@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Học phần{% endblock %}
+{% block page_title %}Quản lý Học phần{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span class="fw-bold"><i class="bi bi-book me-1"></i> Danh sách Học phần</span>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalThem">
+            <i class="bi bi-plus-lg me-1"></i> Thêm học phần
+        </button>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>#</th><th>Mã HP</th><th>Tên học phần</th><th>Tín chỉ</th><th>Đơn vị</th><th>Đề cương</th><th>CB hiệu chỉnh</th></tr>
+            </thead>
+            <tbody>
+            {% for hp in ds_hp %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td><code>{{ hp.maHP }}</code></td>
+                <td class="fw-semibold">{{ hp.tenHP }}</td>
+                <td>{{ hp.soTinChi }}</td>
+                <td>{{ hp.don_vi.tenDonVi if hp.don_vi else '—' }}</td>
+                <td>
+                    {% if hp.de_cuong %}
+                        {% if hp.de_cuong.trangThai == 'hoan_thanh' %}<span class="badge bg-success">Hoàn thành</span>
+                        {% elif hp.de_cuong.trangThai == 'dang_hieu_chinh' %}<span class="badge bg-primary">Đang hiệu chỉnh</span>
+                        {% else %}<span class="badge bg-secondary">Nháp</span>{% endif %}
+                    {% else %}<span class="badge bg-light text-muted border">Chưa có</span>{% endif %}
+                </td>
+                <td>{{ hp.phan_quyen | length }} CB</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center text-muted py-4">Chưa có học phần nào</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalThem" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ url_for('admin.them_hoc_phan') }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Học phần mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Mã học phần</label>
+                    <input type="text" name="maHP" class="form-control" placeholder="CS301" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tên học phần</label>
+                    <input type="text" name="tenHP" class="form-control" placeholder="Lập trình Python nâng cao" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số tín chỉ</label>
+                    <input type="number" name="soTinChi" class="form-control" value="3" min="1" max="10">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Thuộc Đơn vị</label>
+                    <select name="idDonVi" class="form-select" required>
+                        <option value="">— Chọn đơn vị —</option>
+                        {% for dv in ds_dv %}
+                        <option value="{{ dv.idDonVi }}">{{ dv.tenDonVi }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary">Thêm</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

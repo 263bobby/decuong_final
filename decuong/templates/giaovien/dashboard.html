@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Đề cương của tôi{% endblock %}
+{% block page_title %}Đề cương được phân công hiệu chỉnh{% endblock %}
+{% block content %}
+{% if ds_pq %}
+<div class="row g-4">
+    {% for pq in ds_pq %}
+    {% set hp = pq.hoc_phan %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-secondary">{{ hp.maHP }}</span>
+                    {% if hp.de_cuong %}
+                        {% if hp.de_cuong.trangThai == 'hoan_thanh' %}<span class="badge bg-success">Hoàn thành</span>
+                        {% elif hp.de_cuong.trangThai == 'dang_hieu_chinh' %}<span class="badge bg-primary">Đang hiệu chỉnh</span>
+                        {% else %}<span class="badge bg-warning text-dark">Nháp</span>{% endif %}
+                    {% else %}<span class="badge bg-light text-muted border">Chưa có ĐC</span>{% endif %}
+                </div>
+                <h6 class="fw-bold mb-1">{{ hp.tenHP }}</h6>
+                <div class="text-muted small mb-1"><i class="bi bi-building me-1"></i>{{ hp.don_vi.tenDonVi if hp.don_vi else '—' }}</div>
+                <div class="text-muted small mb-1"><i class="bi bi-clock me-1"></i>{{ hp.soTinChi }} tín chỉ</div>
+                {% if pq.ngayKetThuc %}
+                <div class="text-muted small mb-3"><i class="bi bi-calendar-x me-1"></i>Hết hạn: {{ pq.ngayKetThuc.strftime('%d/%m/%Y') }}</div>
+                {% else %}
+                <div class="text-muted small mb-3"><i class="bi bi-infinity me-1"></i>Không giới hạn</div>
+                {% endif %}
+                {% if pq.quyenDuyetDC %}<div class="mb-2"><span class="badge bg-success-subtle text-success border border-success-subtle">Có quyền duyệt</span></div>{% endif %}
+                {% if hp.de_cuong %}
+                <a href="{{ url_for('giaovien.xem_de_cuong', hp_id=hp.idHocPhan) }}" class="btn btn-primary btn-sm w-100">
+                    <i class="bi bi-pencil-square me-1"></i> Hiệu chỉnh đề cương
+                </a>
+                {% else %}
+                <button class="btn btn-secondary btn-sm w-100" disabled><i class="bi bi-hourglass me-1"></i> Chờ tạo đề cương</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+    <h5>Bạn chưa được phân công hiệu chỉnh học phần nào</h5>
+    <p class="small">Vui lòng liên hệ Admin Đơn vị để được phân công.</p>
+</div>
+{% endif %}
+{% endblock %}

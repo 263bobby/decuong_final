@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Đơn vị{% endblock %}
+{% block page_title %}Quản lý Đơn vị{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span class="fw-bold"><i class="bi bi-building me-1"></i> Danh sách Đơn vị</span>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalThem">
+            <i class="bi bi-plus-lg me-1"></i> Thêm đơn vị
+        </button>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>#</th><th>Tên đơn vị</th><th>Mã</th><th>Loại</th><th>Số học phần</th><th>Số CB</th></tr>
+            </thead>
+            <tbody>
+            {% for dv in ds_dv %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td class="fw-semibold">{{ dv.tenDonVi }}</td>
+                <td><span class="badge bg-secondary">{{ dv.maDonVi }}</span></td>
+                <td>{{ dv.loaiDonVi }}</td>
+                <td>{{ dv.hoc_phan.count() }}</td>
+                <td>{{ dv.can_bo.count() }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="text-center text-muted py-4">Chưa có đơn vị nào</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalThem" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ url_for('admin.them_don_vi') }}">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Thêm Đơn vị mới</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3"><label class="form-label">Tên đơn vị</label><input type="text" name="tenDonVi" class="form-control" placeholder="Khoa Công nghệ thông tin" required></div>
+                <div class="mb-3"><label class="form-label">Mã đơn vị</label><input type="text" name="maDonVi" class="form-control" placeholder="CNTT" required></div>
+                <div class="mb-3"><label class="form-label">Loại</label>
+                    <select name="loaiDonVi" class="form-select">
+                        <option value="khoa">Khoa</option>
+                        <option value="bo_mon">Bộ môn</option>
+                        <option value="phong_ban">Phòng ban</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary">Thêm</button></div>
+        </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
