@@ -5,17 +5,17 @@
 <div class="row g-4">
 
     <div class="col-md-5">
-        <div class="card h-100">
+        <div class="card h-100 shadow-sm border-0">
             <div class="card-header bg-primary text-white fw-bold">
                 <i class="bi bi-person-check me-1"></i> Phân công Cán bộ hiệu chỉnh
             </div>
             <div class="card-body">
                 <p class="text-muted small mb-3">
-                    Chọn cán bộ (kể cả đơn vị khác) được phép hiệu chỉnh đề cương học phần này.
-                    Tick thêm <strong>Duyệt</strong> nếu cán bộ đó được xác nhận hoàn thành.
+                    Chọn cán bộ được phép hiệu chỉnh đề cương học phần này.
+                    Tick thêm <strong>Duyệt</strong> nếu cán bộ đó có quyền xác nhận bản chốt (Chủ biên).
                 </p>
                 <form method="POST" action="{{ url_for('donvi.phan_quyen', hp_id=hp.idHocPhan) }}">
-                    <div style="max-height:340px;overflow-y:auto;border:1px solid #dee2e6;border-radius:8px;padding:8px;" class="mb-3">
+                    <div style="max-height:340px;overflow-y:auto;border:1px solid #dee2e6;border-radius:8px;padding:8px;" class="mb-3 shadow-inner">
                         {% for cb in tat_ca_cb %}
                         {% set pq = phan_quyen_hien_tai.get(cb.idCanBo) %}
                         <div class="py-2 border-bottom d-flex align-items-center justify-content-between">
@@ -26,9 +26,7 @@
                                        {% if pq %}checked{% endif %}>
                                 <label class="form-check-label" for="cb{{ cb.idCanBo }}">
                                     <span class="fw-semibold">{{ cb.hoTen }}</span><br>
-                                    <small class="text-muted">{{ cb.email }}
-                                        {% if cb.don_vi %}— <span class="badge bg-light text-dark border">{{ cb.don_vi.maDonVi }}</span>{% endif %}
-                                    </small>
+                                    <small class="text-muted">{{ cb.email }}</small>
                                 </label>
                             </div>
                             <div class="form-check form-check-inline ms-2">
@@ -43,8 +41,22 @@
                         <p class="text-muted text-center py-3">Chưa có cán bộ nào trong hệ thống</p>
                         {% endfor %}
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-save me-1"></i> Lưu phân công & gửi thông báo
+
+                    <div class="mb-3 p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded">
+                        <label for="ngayKetThuc" class="form-label fw-bold text-danger mb-1">
+                            <i class="bi bi-calendar-x"></i> Hạn chót hoàn thành (Deadline)
+                        </label>
+                        <input type="date" class="form-control border-danger" id="ngayKetThuc" name="ngayKetThuc"
+                               {% if phan_quyen_hien_tai.values()|list|length > 0 and (phan_quyen_hien_tai.values()|list)[0].ngayKetThuc %}
+                               value="{{ (phan_quyen_hien_tai.values()|list)[0].ngayKetThuc.strftime('%Y-%m-%d') }}"
+                               {% endif %}>
+                        <small class="text-danger opacity-75 d-block mt-1">
+                            <i class="bi bi-bell"></i> Hệ thống sẽ gửi thông báo đến giảng viên. Bỏ trống nếu không giới hạn.
+                        </small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">
+                        <i class="bi bi-send-check me-1"></i> Lưu phân công & Gửi thông báo
                     </button>
                 </form>
             </div>
@@ -52,17 +64,27 @@
     </div>
 
     <div class="col-md-7">
-        <div class="card">
+        <div class="card shadow-sm border-0">
             <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-file-text me-1"></i> Thông tin Đề cương</span>
+
                 {% if not hp.de_cuong %}
                 <form method="POST" action="{{ url_for('donvi.tao_de_cuong', hp_id=hp.idHocPhan) }}">
                     <button class="btn btn-success btn-sm">
                         <i class="bi bi-plus-lg me-1"></i> Tạo đề cương
                     </button>
                 </form>
+                {% else %}
+                    {% if hp.de_cuong.trangThai != 'hoan_thanh' %}
+                    <form method="POST" action="{{ url_for('donvi.phe_duyet_de_cuong', hp_id=hp.idHocPhan) }}" onsubmit="return confirm('Bạn có chắc chắn muốn CHỐT đề cương này? Sau khi chốt, giảng viên sẽ không thể sửa đổi nữa.');">
+                        <button class="btn btn-success btn-sm fw-bold shadow-sm pulse-button">
+                            <i class="bi bi-check-all me-1"></i> Phê duyệt & Chốt
+                        </button>
+                    </form>
+                    {% endif %}
                 {% endif %}
             </div>
+
             <div class="card-body">
                 {% if hp.de_cuong %}
                 {% set dc = hp.de_cuong %}
@@ -73,9 +95,23 @@
                     </div>
                     <div class="col-6">
                         <div class="text-muted small">Trạng thái</div>
-                        {% if dc.trangThai == 'hoan_thanh' %}<span class="badge bg-success">Hoàn thành</span>
-                        {% elif dc.trangThai == 'dang_hieu_chinh' %}<span class="badge bg-primary">Đang hiệu chỉnh</span>
-                        {% else %}<span class="badge bg-secondary">Nháp</span>{% endif %}
+
+                        {% if dc.trangThai == 'nhap' %}
+                            <span class="badge bg-warning text-dark px-2 py-1" title="Chờ giảng viên vào viết nội dung">
+                                <i class="bi bi-hourglass"></i> Chờ biên soạn
+                            </span>
+                        {% elif dc.trangThai == 'dang_hieu_chinh' %}
+                            <span class="badge bg-primary px-2 py-1" title="Giảng viên đang trong quá trình soạn thảo">
+                                <i class="bi bi-pencil-square"></i> Đang biên soạn
+                            </span>
+                        {% elif dc.trangThai == 'hoan_thanh' %}
+                            <span class="badge bg-success px-2 py-1" title="Đề cương đã được chốt sổ">
+                                <i class="bi bi-check-circle-fill"></i> Đã hoàn thành
+                            </span>
+                        {% else %}
+                            <span class="badge bg-light text-muted border px-2 py-1">Lỗi trạng thái</span>
+                        {% endif %}
+
                     </div>
                     <div class="col-6">
                         <div class="text-muted small">Ngày tạo</div>
@@ -87,37 +123,62 @@
                     </div>
                 </div>
                 <hr>
-                <div class="mb-2">
-                    <div class="text-muted small mb-1">Mục tiêu môn học</div>
-                    <div class="border rounded p-2 bg-light" style="min-height:44px;white-space:pre-wrap;">{{ dc.mucTieu or '(Chưa có nội dung)' }}</div>
+
+                <div class="mb-3">
+                    <div class="text-muted small mb-1 fw-semibold">Mục tiêu môn học</div>
+                    <div class="border rounded p-3 bg-white shadow-sm text-dark" style="min-height:44px;">{{ dc.mucTieu | safe if dc.mucTieu else '(Chưa có nội dung)' }}</div>
                 </div>
-                <div class="mb-2">
-                    <div class="text-muted small mb-1">Nội dung giảng dạy</div>
-                    <div class="border rounded p-2 bg-light" style="min-height:60px;white-space:pre-wrap;">{{ dc.noiDung or '(Chưa có nội dung)' }}</div>
+                <div class="mb-3">
+                    <div class="text-muted small mb-1 fw-semibold">Nội dung giảng dạy</div>
+                    <div class="border rounded p-3 bg-white shadow-sm text-dark" style="min-height:60px;">{{ dc.noiDung | safe if dc.noiDung else '(Chưa có nội dung)' }}</div>
                 </div>
-                <div class="text-muted small mt-3">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Cán bộ được phân công sẽ hiệu chỉnh nội dung đề cương sau khi đăng nhập.
+
+                <div class="mb-3">
+                    <div class="text-muted small mb-1 fw-semibold">Tài liệu tham khảo</div>
+                    <div class="border rounded p-3 bg-white shadow-sm text-dark" style="min-height:44px;">{{ dc.taiLieu | safe if dc.taiLieu else '(Chưa có nội dung)' }}</div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="text-muted small mb-1 fw-semibold">Phương pháp giảng dạy</div>
+                        <div class="border rounded p-3 bg-white shadow-sm text-dark" style="min-height:44px;">{{ dc.ppGiangDay | safe if dc.ppGiangDay else '(Chưa có nội dung)' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small mb-1 fw-semibold">Phương pháp đánh giá</div>
+                        <div class="border rounded p-3 bg-white shadow-sm text-dark" style="min-height:44px;">{{ dc.ppDanhGia | safe if dc.ppDanhGia else '(Chưa có nội dung)' }}</div>
+                    </div>
+                </div>
+
+                {% if dc.trangThai == 'hoan_thanh' %}
+                <div class="alert alert-success mt-3 small py-2 mb-0">
+                    <i class="bi bi-lock-fill me-1"></i> Đề cương này đã được phê duyệt và chốt sổ, không thể thay đổi.
                 </div>
                 {% else %}
+                <div class="text-muted small mt-3">
+                    <i class="bi bi-info-circle text-primary me-1"></i>
+                    Cán bộ được phân công sẽ hiệu chỉnh nội dung đề cương sau khi đăng nhập.
+                </div>
+                {% endif %}
+
+                {% else %}
                 <div class="text-center py-5 text-muted">
-                    <i class="bi bi-file-earmark-x fs-1 d-block mb-2"></i>
-                    Chưa có đề cương. Nhấn <strong>Tạo đề cương</strong> để bắt đầu.
+                    <i class="bi bi-file-earmark-x fs-1 d-block mb-2 opacity-50"></i>
+                    Chưa có đề cương. Nhấn <strong>Tạo đề cương</strong> ở góc trên để bắt đầu.
                 </div>
                 {% endif %}
             </div>
         </div>
 
         {% if hp.de_cuong and hp.de_cuong.lich_su.count() > 0 %}
-        <div class="card mt-3">
+        <div class="card mt-3 shadow-sm border-0">
             <div class="card-header bg-white fw-bold">
                 <i class="bi bi-clock-history me-1"></i> Lịch sử hiệu chỉnh gần đây
             </div>
             <div class="card-body p-0" style="max-height:200px;overflow-y:auto;">
                 {% for ls in hp.de_cuong.lich_su.limit(5) %}
-                <div class="p-3 border-bottom">
+                <div class="p-3 border-bottom hover-bg-light">
                     <div class="d-flex justify-content-between">
-                        <span class="fw-semibold small">{{ ls.can_bo.hoTen }}</span>
+                        <span class="fw-semibold text-primary small">{{ ls.can_bo.hoTen }}</span>
                         <span class="text-muted" style="font-size:.75rem;">
                             {{ ls.thoiGian.strftime('%d/%m %H:%M') if ls.thoiGian else 'Chưa rõ' }}
                         </span>
@@ -132,8 +193,19 @@
 </div>
 
 <div class="mt-3">
-    <a href="{{ url_for('donvi.dashboard') }}" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left me-1"></i> Quay lại
+    <a href="{{ url_for('donvi.dashboard') }}" class="btn btn-outline-secondary fw-semibold">
+        <i class="bi bi-arrow-left me-1"></i> Quay lại Danh sách
     </a>
 </div>
+
+<style>
+    .pulse-button { animation: pulse 2s infinite; }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(25, 135, 84, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+    }
+    /* Xóa bỏ định dạng mặc định của ckeditor list khi hiển thị ngoài UI */
+    .bg-white ul, .bg-white ol { padding-left: 1.5rem; margin-bottom: 0; }
+</style>
 {% endblock %}

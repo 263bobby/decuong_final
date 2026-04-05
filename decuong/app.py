@@ -78,4 +78,12 @@ def _seed_data():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True)
+    # TUYỆT CHIÊU: Tự động kiểm tra và tạo bảng thiếu trong Database
+    from extensions import db
+
+    with app.app_context():
+        db.create_all()
+        print("Đã kiểm tra và cập nhật Database thành công!")
+
+    # Khởi động server
+    app.run(debug=True, port=5000)

@@ -9,6 +9,17 @@
             <i class="bi bi-plus-lg me-1"></i> Thêm cán bộ
         </button>
     </div>
+
+    <div class="card-body border-bottom p-3 bg-light">
+        <form method="GET" action="{{ url_for('admin.can_bo') }}" class="d-flex gap-2" style="max-width: 500px;">
+            <input type="text" name="q" class="form-control" placeholder="Tìm theo Mã CB, Họ tên, Email..." value="{{ search_query }}">
+            <button type="submit" class="btn btn-primary px-4"><i class="bi bi-search"></i> Tìm</button>
+            {% if search_query %}
+                <a href="{{ url_for('admin.can_bo') }}" class="btn btn-outline-secondary">Xóa bộ lọc</a>
+            {% endif %}
+        </form>
+    </div>
+
     <div class="card-body p-0">
         <table class="table table-hover mb-0">
             <thead class="table-light">
@@ -31,7 +42,7 @@
                 <td>{% if cb.trangThai %}<span class="badge bg-success">ON</span>{% else %}<span class="badge bg-secondary">OFF</span>{% endif %}</td>
                 <td>
                     <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#edit{{ cb.idCanBo }}"><i class="bi bi-pencil"></i></button>
-                    <form method="POST" action="{{ url_for('admin.xoa_can_bo', cb_id=cb.idCanBo) }}" class="d-inline" onsubmit="return confirm('Xóa {{ cb.hoTen }}?')">
+                    <form method="POST" action="{{ url_for('admin.xoa_can_bo', id=cb.idCanBo) }}" class="d-inline" onsubmit="return confirm('Xóa {{ cb.hoTen }}?')">
                         <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
                     </form>
                 </td>
@@ -72,6 +83,11 @@
                     </form>
                 </div>
             </div>
+            {% else %}
+            <tr><td colspan="9" class="text-center text-muted py-4">
+                <i class="bi bi-search fs-3 d-block mb-2"></i>
+                Không tìm thấy cán bộ nào phù hợp với từ khóa.
+            </td></tr>
             {% endfor %}
             </tbody>
         </table>

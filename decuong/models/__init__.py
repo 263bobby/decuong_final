@@ -3,7 +3,6 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
 
-
 class DonVi(db.Model):
     __tablename__ = 'DonVi'
     idDonVi   = db.Column(db.Integer, primary_key=True)
@@ -11,14 +10,12 @@ class DonVi(db.Model):
     maDonVi   = db.Column(db.String(20),  nullable=False, unique=True)
     loaiDonVi = db.Column(db.String(20),  nullable=False, default='khoa')
     moTa      = db.Column(db.Text, nullable=True)
-    # ngayTao: SQL Server tự quản lý, không map vào Python
 
     can_bo   = db.relationship('CanBo',   foreign_keys='CanBo.idDonVi', backref='don_vi', lazy='dynamic')
     hoc_phan = db.relationship('HocPhan', backref='don_vi', lazy='dynamic')
 
     def __repr__(self):
         return f'<DonVi {self.maDonVi}>'
-
 
 class CanBo(UserMixin, db.Model):
     __tablename__ = 'CanBo'
@@ -35,7 +32,6 @@ class CanBo(UserMixin, db.Model):
     matKhau     = db.Column(db.String(256), nullable=False)
     vaiTro      = db.Column(db.String(20),  nullable=False, default='can_bo')
     trangThai   = db.Column(db.Boolean, nullable=False, default=True)
-    # ngayTao, ngayCapNhat: SQL Server tự quản lý
 
     def get_id(self):
         return str(self.idCanBo)
@@ -62,7 +58,6 @@ class CanBo(UserMixin, db.Model):
     def __repr__(self):
         return f'<CanBo {self.maCB} {self.hoTen}>'
 
-
 class HocPhan(db.Model):
     __tablename__ = 'HocPhan'
     idHocPhan  = db.Column(db.Integer, primary_key=True)
@@ -72,14 +67,12 @@ class HocPhan(db.Model):
     idDonVi    = db.Column(db.Integer, db.ForeignKey('DonVi.idDonVi'), nullable=False)
     moTa       = db.Column(db.Text, nullable=True)
     trangThai  = db.Column(db.String(20),  nullable=False, default='dang_su_dung')
-    # ngayTao: SQL Server tự quản lý
 
     de_cuong   = db.relationship('DeCuong', backref='hoc_phan', uselist=False, cascade='all, delete-orphan')
     phan_quyen = db.relationship('CanBoHocPhan', backref='hoc_phan', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<HocPhan {self.maHP}>'
-
 
 class CanBoHocPhan(db.Model):
     __tablename__ = 'CanBo_HocPhan'
@@ -88,9 +81,8 @@ class CanBoHocPhan(db.Model):
     idHocPhan      = db.Column(db.Integer, db.ForeignKey('HocPhan.idHocPhan'), nullable=False)
     quyenHieuChinh = db.Column(db.Boolean, nullable=False, default=True)
     quyenDuyetDC   = db.Column(db.Boolean, nullable=False, default=False)
-    # ngayPhanQuyen: SQL Server tự quản lý
     ngayBatDau     = db.Column(db.Date, nullable=True)
-    ngayKetThuc    = db.Column(db.Date, nullable=True)
+    ngayKetThuc    = db.Column(db.Date, nullable=True) # <-- ĐÂY CHÍNH LÀ DEADLINE
     nguoiPhanQuyen = db.Column(db.Integer, db.ForeignKey('CanBo.idCanBo'), nullable=False)
     trangThai      = db.Column(db.String(20), nullable=False, default='hoat_dong')
     ghiChu         = db.Column(db.String(500), nullable=True)
@@ -116,7 +108,6 @@ class CanBoHocPhan(db.Model):
     def __repr__(self):
         return f'<PhanQuyen CB={self.idCanBo} HP={self.idHocPhan}>'
 
-
 class DeCuong(db.Model):
     __tablename__ = 'DeCuong'
     idDeCuong   = db.Column(db.Integer, primary_key=True)
@@ -128,13 +119,11 @@ class DeCuong(db.Model):
     ppGiangDay  = db.Column(db.Text, nullable=True)
     ppDanhGia   = db.Column(db.Text, nullable=True)
     trangThai   = db.Column(db.String(30), nullable=False, default='nhap')
-    # ngayTao, ngayCapNhat: SQL Server tự quản lý
 
     lich_su = db.relationship('LichSuHieuChinh', backref='de_cuong', lazy='dynamic', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<DeCuong HP={self.idHocPhan}>'
-
 
 class LichSuHieuChinh(db.Model):
     __tablename__ = 'LichSuHieuChinh'
@@ -145,9 +134,28 @@ class LichSuHieuChinh(db.Model):
     noiDungMoi    = db.Column(db.Text, nullable=True)
     truongThayDoi = db.Column(db.String(100), nullable=True)
     ghiChu        = db.Column(db.String(500), nullable=True)
-    # thoiGian: SQL Server tự quản lý
 
     can_bo = db.relationship('CanBo', backref='lich_su_hieu_chinh')
 
     def __repr__(self):
         return f'<LichSu DC={self.idDeCuong}>'
+
+# ==========================================
+# BẢNG MỚI: THÔNG BÁO CHO GIẢNG VIÊN
+# ==========================================
+class ThongBao(db.Model):
+    __tablename__ = 'ThongBao'
+    idThongBao  = db.Column(db.Integer, primary_key=True)
+    idCanBo     = db.Column(db.Integer, db.ForeignKey('CanBo.idCanBo'), nullable=False) # Người nhận
+    tieuDe      = db.Column(db.String(200), nullable=False)
+    noiDung     = db.Column(db.Text, nullable=False)
+    loai        = db.Column(db.String(50), default='phan_cong') # phan_cong, canh_bao, he_thong
+    link_url    = db.Column(db.String(200), nullable=True) # Click vào thông báo nhảy tới đâu
+    daDoc       = db.Column(db.Boolean, nullable=False, default=False)
+    thoiGian    = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    # Liên kết với Cán Bộ
+    can_bo = db.relationship('CanBo', backref=db.backref('danh_sach_thong_bao', lazy='dynamic', cascade='all, delete-orphan'))
+
+    def __repr__(self):
+        return f'<ThongBao {self.tieuDe}>'

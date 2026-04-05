@@ -2,6 +2,7 @@
 {% block title %}Dashboard - Admin{% endblock %}
 {% block page_title %}Dashboard Quản trị{% endblock %}
 {% block content %}
+
 <div class="row g-4 mb-4">
     <div class="col-md-4">
         <div class="card stat-card p-3">
@@ -46,6 +47,102 @@
         </div>
     </div>
 </div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-bar-chart-fill text-primary me-1"></i> Tiến độ đề cương
+            </div>
+            <div class="card-body">
+                {% set tong = hoan_thanh + dang_hc + nhap + chua_co %}
+                {% if tong > 0 %}
+                    {% set pct_ht   = (hoan_thanh / tong * 100) | round(1) %}
+                    {% set pct_dhc  = (dang_hc    / tong * 100) | round(1) %}
+                    {% set pct_nhap = (nhap        / tong * 100) | round(1) %}
+                    {% set pct_cc   = (chua_co     / tong * 100) | round(1) %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-success fw-semibold">Hoàn thành</span>
+                            <span>{{ hoan_thanh }}/{{ tong }} ({{ pct_ht }}%)</span>
+                        </div>
+                        <div class="progress" style="height:10px">
+                            <div class="progress-bar bg-success" style="width:{{ pct_ht }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-primary fw-semibold">Đang hiệu chỉnh</span>
+                            <span>{{ dang_hc }}/{{ tong }} ({{ pct_dhc }}%)</span>
+                        </div>
+                        <div class="progress" style="height:10px">
+                            <div class="progress-bar bg-primary" style="width:{{ pct_dhc }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-secondary fw-semibold">Nháp</span>
+                            <span>{{ nhap }}/{{ tong }} ({{ pct_nhap }}%)</span>
+                        </div>
+                        <div class="progress" style="height:10px">
+                            <div class="progress-bar bg-secondary" style="width:{{ pct_nhap }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-muted fw-semibold">Chưa có đề cương</span>
+                            <span>{{ chua_co }}/{{ tong }} ({{ pct_cc }}%)</span>
+                        </div>
+                        <div class="progress" style="height:10px">
+                            <div class="progress-bar bg-light border" style="width:{{ pct_cc }}%"></div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-0">Chưa có học phần nào.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white fw-bold d-flex align-items-center gap-2">
+                <i class="bi bi-alarm-fill text-warning"></i> Phân quyền sắp hết hạn
+                {% if sap_het_han %}
+                <span class="badge bg-warning text-dark ms-auto">{{ sap_het_han|length }} mục</span>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                {% if sap_het_han %}
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr><th>Cán bộ</th><th>Học phần</th><th>Hết hạn</th></tr>
+                    </thead>
+                    <tbody>
+                    {% for pq in sap_het_han %}
+                    <tr>
+                        <td class="small">{{ pq.can_bo.hoTen }}</td>
+                        <td class="small"><code>{{ pq.hoc_phan.maHP }}</code> {{ pq.hoc_phan.tenHP }}</td>
+                        <td class="small">
+                            <span class="badge bg-warning text-dark">
+                                {{ pq.ngayKetThuc.strftime('%d/%m/%Y') }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center text-muted py-4 small">
+                    <i class="bi bi-check-circle-fill text-success d-block mb-1 fs-4"></i>
+                    Không có phân quyền nào sắp hết hạn
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4">
     <div class="col-md-6">
         <div class="card">
@@ -61,9 +158,6 @@
                 </a>
                 <a href="{{ url_for('admin.hoc_phan') }}" class="btn btn-outline-success">
                     <i class="bi bi-book-half me-1"></i> Quản lý Học phần
-                </a>
-                <a href="{{ url_for('admin.dong_bo_api') }}" class="btn btn-outline-info">
-                    <i class="bi bi-cloud-arrow-down me-1"></i> Đồng bộ từ API ngoài
                 </a>
             </div>
         </div>
@@ -85,4 +179,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}

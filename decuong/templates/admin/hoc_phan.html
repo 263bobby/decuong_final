@@ -9,6 +9,17 @@
             <i class="bi bi-plus-lg me-1"></i> Thêm học phần
         </button>
     </div>
+
+    <div class="card-body border-bottom p-3 bg-light">
+        <form method="GET" action="{{ url_for('admin.hoc_phan') }}" class="d-flex gap-2" style="max-width: 500px;">
+            <input type="text" name="q" class="form-control" placeholder="Tìm theo Mã HP, Tên học phần..." value="{{ search_query }}">
+            <button type="submit" class="btn btn-primary px-4"><i class="bi bi-search"></i> Tìm</button>
+            {% if search_query %}
+                <a href="{{ url_for('admin.hoc_phan') }}" class="btn btn-outline-secondary">Xóa bộ lọc</a>
+            {% endif %}
+        </form>
+    </div>
+
     <div class="card-body p-0">
         <table class="table table-hover mb-0">
             <thead class="table-light">
@@ -32,7 +43,10 @@
                 <td>{{ hp.phan_quyen | length }} CB</td>
             </tr>
             {% else %}
-            <tr><td colspan="7" class="text-center text-muted py-4">Chưa có học phần nào</td></tr>
+            <tr><td colspan="7" class="text-center text-muted py-4">
+                <i class="bi bi-search fs-3 d-block mb-2"></i>
+                {% if search_query %}Không tìm thấy học phần nào phù hợp với từ khóa.{% else %}Chưa có học phần nào{% endif %}
+            </td></tr>
             {% endfor %}
             </tbody>
         </table>
